@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "playlists"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="Stefano Furin", email="furins@gmail.com" },
 ]
@@ -21,5 +21,5 @@ dependencies = [
   'loguru',
  ]
 [project.urls]
-"Homepage" = "https://github.com/furins/yamlconfig"
-"Bug Tracker" = "https://github.com/furins/yamlconfig/issues"
+"Homepage" = "https://github.com/furins/multimedia-playlists"
+"Bug Tracker" = "https://github.com/furins/multimedia-playlists/issues"

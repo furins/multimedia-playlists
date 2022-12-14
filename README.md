@@ -1,10 +1,10 @@
 # YAMLconfig
 
-A very simple library to read a YAML configuration file and return a dictionary
+A very simple library to read/write/manage a YAML playlist
 
 ## INSTALL
 
-    python -m pip install https://github.com/furins/yamlconfig/tarball/main
+    python -m pip install https://github.com/furins/multimedia-playlists/tarball/main
 
 ## AUTHOR
 
