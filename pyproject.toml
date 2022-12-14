@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "playlists"
+version = "0.0.1"
+authors = [
+  { name="Stefano Furin", email="furins@gmail.com" },
+]
+description = "A package to load playlists stored as YAML files"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  'PyYAML ~= 6.0',
+  'loguru',
+ ]
+[project.urls]
+"Homepage" = "https://github.com/furins/yamlconfig"
+"Bug Tracker" = "https://github.com/furins/yamlconfig/issues"
