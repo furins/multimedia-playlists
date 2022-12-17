@@ -116,9 +116,10 @@ class Playlist:
     playlist_path: Optional[Path] = None
     data: list[PlaylistElement] = []
 
-    def __init__(self, playlist_path: Optional[str] = None):
+    def __init__(self, playlist_path: Optional[str] = None, on_error:Callable=None):
         """crea una playlist vuota oppure, se è stato fornito un path, ne verifica il contenuto per popolare la playlist
         stessa."""
+        self.on_error = on_error if on_error is not None else sys.exit
         if playlist_path is not None:
             self.playlist_path = Path(playlist_path)
             self.data = self.load()
