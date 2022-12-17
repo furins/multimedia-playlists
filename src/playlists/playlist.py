@@ -2,7 +2,7 @@
 import sys
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Union
+from typing import Callable, Optional, Union
 
 import yaml
 from loguru import logger
@@ -189,9 +189,12 @@ class Playlist:
             else:
                 path_cercato = (self.playlist_path / "playlist.yaml").resolve()
                 logger.error(f"la cartella che contiene la playlist non esiste, ho cercato in: {path_cercato}")
-            sys.exit(1001)
+            self.on_error(1001)
         return data
 
+    def on_error(self, errorcode:int=1):
+        """Method called when a fatal error occours."""
+        sys.exit(errorcode)
 
 class PlaylistPlayer(Playlist):
     """Playlist che tiene traccia dell'elemento visualizzato."""
