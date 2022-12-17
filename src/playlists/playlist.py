@@ -99,7 +99,7 @@ class PlaylistElement:
         return path_uguali and self.durata == other.durata
 
 
-class SafeLoaderIgnoreUnknown(yaml.SafeLoader): #pylint 
+class SafeLoaderIgnoreUnknown(yaml.SafeLoader): # pylint: disable=too-few-public-methods
     """Loader che non genera errori in caso di tag sconosciuti (ma registra l'errore nel log)."""
 
     def ignore_unknown(self, node):
