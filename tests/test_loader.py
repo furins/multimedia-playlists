@@ -8,6 +8,8 @@ def test_loader_1():
     """Verifica con directory esistente."""
     plist = Playlist('../shared/playlist_test')
     plist.load()
+    assert len(plist.data) == 4
+
 
 def test_loader_2():
     """Verifica con directory insesistente."""
@@ -19,3 +21,4 @@ def test_loader_2():
         playlist_path.rmdir()
     plist = Playlist('../shared/playlist')
     plist.load()
+    assert len(plist.data) == 1

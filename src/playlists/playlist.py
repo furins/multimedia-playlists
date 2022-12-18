@@ -157,6 +157,8 @@ class Playlist:
         Raises `MissingPlaylistFolder` if `self.playlist_path` is None
         Raises `WrongPlaylistFolderPath` if `self.playlist_path` is unreachable
         """
+        logger.debug(f"playlist load: {self.playlist_path}")
+
         if self.playlist_path is None:
             logger.error("la cartella che contiene la playlist non esiste, è nulla")
             raise MissingPlaylistFolder
@@ -181,7 +183,7 @@ class Playlist:
 
     def populate_playlist(self) :
         """Populate a playlist from the contents of `self.playlist_path`."""
-        playlistfile = self.playlist_path or Path('.') / "playlist.yaml"
+        playlistfile = (self.playlist_path or Path('.')) / "playlist.yaml"
         if playlistfile.is_file() :
             self.load_playlist(playlistfile)
         else:
@@ -200,10 +202,10 @@ class Playlist:
         """Loads a playlist from a file into `self.data`."""
         with open(playlistfilename, "r", encoding="utf-8") as playlistfile:
             # leggo la playlist dalla cartella indicata in [[playlist_path]]
+            data = []
             try:
                 lista = yaml.load(
                     playlistfile, Loader=SafeLoaderIgnoreUnknown)  # nosec B506
-                data = []
                 for elemento in lista:
                     if isinstance(elemento, dict):
                         durata = elemento["durata"] if "durata" in elemento.keys(
@@ -215,6 +217,7 @@ class Playlist:
                         new_item = PlaylistElement(
                             elemento, relative_to_dir=self.playlist_path)
                     if new_item.is_valid():
+                        logger.debug(f"carico l'elemento {new_item.path}")
                         data.append(new_item)
                     else:
                         logger.warning(
