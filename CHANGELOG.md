@@ -1,3 +1,9 @@
+## 0.2.3 (2022-12-18)
+
+### Fix
+
+- Corrects the playlist generation if empty
+
 ## 0.2.2 (2022-12-18)
 
 ### Fix
