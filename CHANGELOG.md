@@ -1,3 +1,9 @@
+## 0.3.0 (2022-12-18)
+
+### Feat
+
+- added folder monitoring (watchdog)
+
 ## 0.2.3 (2022-12-18)
 
 ### Fix
