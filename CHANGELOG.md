@@ -1,3 +1,15 @@
+## 0.2.1 (2022-12-18)
+
+### Refactor
+
+- Improved loading of playlists
+
+## 0.2.0 (2022-12-18)
+
+### Feat
+
+- **better-management-of-non-existing-playlist-folders**: pre-populates a non-existing playlist with default values
+
 ## 0.1.0 (2022-12-18)
 
 ### Fix
