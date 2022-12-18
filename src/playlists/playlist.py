@@ -1,4 +1,7 @@
 """gestione delle playlist."""
+import importlib.util
+import os
+import shutil
 import sys
 from enum import Enum
 from pathlib import Path
@@ -27,7 +30,8 @@ class PlaylistElement:
     """
 
     path: Union[str, Path]  # path al file/URL
-    tipo: Optional[PlaylistElementType]  # se None, non verrà visualizzato questo elemento
+    # se None, non verrà visualizzato questo elemento
+    tipo: Optional[PlaylistElementType]
     durata: Optional[float]  # in secondi, se pari a None ha durata infinita
 
     def __init__(self, path: str, relative_to_dir: Optional[Path] = None, durata: Optional[float] = None):
@@ -99,7 +103,7 @@ class PlaylistElement:
         return path_uguali and self.durata == other.durata
 
 
-class SafeLoaderIgnoreUnknown(yaml.SafeLoader): # pylint: disable=too-few-public-methods
+class SafeLoaderIgnoreUnknown(yaml.SafeLoader):  # pylint: disable=too-few-public-methods
     """Loader che non genera errori in caso di tag sconosciuti (ma registra l'errore nel log)."""
 
     def ignore_unknown(self, node):
@@ -107,7 +111,8 @@ class SafeLoaderIgnoreUnknown(yaml.SafeLoader): # pylint: disable=too-few-public
         logger.warning(f"tag sconosciuto durante il parsing: {node}")
 
 
-SafeLoaderIgnoreUnknown.add_constructor(None, SafeLoaderIgnoreUnknown.ignore_unknown)  # type: ignore
+SafeLoaderIgnoreUnknown.add_constructor(
+    None, SafeLoaderIgnoreUnknown.ignore_unknown)  # type: ignore
 
 
 class Playlist:
@@ -116,10 +121,10 @@ class Playlist:
     playlist_path: Optional[Path] = None
     data: list[PlaylistElement] = []
 
-    def __init__(self, playlist_path: Optional[str] = None, on_error:Callable=None):
+    def __init__(self, playlist_path: Optional[str] = None, on_error: Callable = None):
         """crea una playlist vuota oppure, se è stato fornito un path, ne verifica il contenuto per popolare la playlist
         stessa."""
-        self.on_error = on_error if on_error is not None else sys.exit
+        self.on_error = on_error if on_error is not None else self.default_on_error
         if playlist_path is not None:
             self.playlist_path = Path(playlist_path)
             self.data = self.load()
@@ -128,7 +133,8 @@ class Playlist:
     def save(self):
         """salva la playlist nella cartella indicata in [[playlist_path]]."""
         with open(self.playlist_path / "playlist.yaml", "w", encoding="utf-8") as outfile:
-            yaml.dump(map(lambda x: x.serialize(), self.data), outfile, default_flow_style=False)
+            yaml.dump(map(lambda x: x.serialize(), self.data),
+                      outfile, default_flow_style=False)
 
     def reload(self, playlist_path=None) -> bool:
         """ricarica la playlist, eventualmente cambiando il path, e restituisce un booleano se qualcosa è cambiato."""
@@ -160,42 +166,64 @@ class Playlist:
             with open(self.playlist_path / "playlist.yaml", "r", encoding="utf-8") as playlistfile:
                 # leggo la playlist dalla cartella indicata in [[playlist_path]]
                 try:
-                    lista = yaml.load(playlistfile, Loader=SafeLoaderIgnoreUnknown)  # nosec B506
+                    lista = yaml.load(
+                        playlistfile, Loader=SafeLoaderIgnoreUnknown)  # nosec B506
                     data = []
                     for elemento in lista:
                         if isinstance(elemento, dict):
-                            durata = elemento["durata"] if "durata" in elemento.keys() else None
+                            durata = elemento["durata"] if "durata" in elemento.keys(
+                            ) else None
                             new_item = PlaylistElement(
                                 elemento["name"], relative_to_dir=self.playlist_path, durata=durata
                             )
                         else:
-                            new_item = PlaylistElement(elemento, relative_to_dir=self.playlist_path)
+                            new_item = PlaylistElement(
+                                elemento, relative_to_dir=self.playlist_path)
                         if new_item.is_valid():
                             data.append(new_item)
                         else:
-                            logger.warning(f"non posso aggiungere l'elemento {new_item} perchè non è valido")
+                            logger.warning(
+                                f"non posso aggiungere l'elemento {new_item} perchè non è valido")
                 except yaml.YAMLError:
                     logger.exception("playlist non valida")
             if data is None:
                 # se non la trovo, leggo tutti i file nella cartella condivisa, in ordine alfabetico, e registro il log
                 for elemento in sorted(
-                    [path.as_posix() for path in self.playlist_path.glob("*.[jpeg][jpg][png][mp4]")]
+                    [path.as_posix() for path in self.playlist_path.glob(
+                        "*.[jpeg][jpg][png][mp4]")]
                 ):
-                    new_item = PlaylistElement(elemento, relative_to_dir=self.playlist_path)
+                    new_item = PlaylistElement(
+                        elemento, relative_to_dir=self.playlist_path)
                     data.append(new_item)
+                    # TODO sarebbe da salvare, se non esiste.
         else:
             # se non la trovo, esco.
             if self.playlist_path is None:
                 logger.error("la cartella che contiene la playlist non esiste, è nulla")
             else:
-                path_cercato = (self.playlist_path / "playlist.yaml").resolve()
-                logger.error(f"la cartella che contiene la playlist non esiste, ho cercato in: {path_cercato}")
-            self.on_error(1001)
+                path_cercato = (self.playlist_path).resolve()
+                try:
+                    self.playlist_path.mkdir(parents=True, exist_ok=True)
+                    logger.warning(f"la cartella che contiene la playlist non esisteva, l'ho creata in: {path_cercato}")
+                    # in ogni caso la playlist sarà vuota a questo punto, quindi carico un contenuto di default
+
+                    src = Path(importlib.util.find_spec("requests").origin).stem
+                    files = os.listdir(src)
+                    for fname in files:
+                        # copying the files to the destination directory
+                        src_file = os.path.join(src, fname)
+                        shutil.copy2(src_file, self.playlist_path)
+                        logger.warning(f"copiato file di default: {src_file}")
+
+                except FileNotFoundError:
+                    logger.error(f"Esco in quanto è impossible creare la cartella in questa posizione: {path_cercato}")
+                    self.on_error(1001)
         return data
 
-    def on_error(self, errorcode:int=1):
+    def default_on_error(self, errorcode: int = 1):
         """Method called when a fatal error occours."""
         sys.exit(errorcode)
+
 
 class PlaylistPlayer(Playlist):
     """Playlist che tiene traccia dell'elemento visualizzato."""

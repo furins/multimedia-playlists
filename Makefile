@@ -1,4 +1,4 @@
-.PHONY: install_dev, setup_dev, minor
+.PHONY: install_dev, setup_dev, bump
 
 install_dev:
 	python -m pip install -U -r ./requirements.txt
@@ -8,5 +8,5 @@ setup_dev:
 	pre-commit autoupdate
 	cz init
 
-minor:
+bump:
 	cz bump --changelog

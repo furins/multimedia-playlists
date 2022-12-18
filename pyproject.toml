@@ -34,3 +34,19 @@ version_files = [
     # "cargo.toml:^version",
     # "package.json:\"version\":"
 ]
+
+[tool.pylint]
+max-line-length = 180
+max-parents = 10
+recursive = true
+
+[tool.autopep8]
+max_line_length = 180
+in-place = true
+recursive = true
+
+[tool.black]
+line-length = 180
+
+[tool.flake8]
+max-line-length = 180
