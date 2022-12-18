@@ -3,15 +3,12 @@ import importlib.util
 import os
 import shutil
 import sys
-import time
 from enum import Enum
 from pathlib import Path
 from typing import Callable, Optional, Union
 
 import yaml
 from loguru import logger
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
 
 
 class MissingPlaylistFolder(Exception):
@@ -122,27 +119,6 @@ class SafeLoaderIgnoreUnknown(yaml.SafeLoader):  # pylint: disable=too-few-publi
 
 SafeLoaderIgnoreUnknown.add_constructor(None, SafeLoaderIgnoreUnknown.ignore_unknown)  # type: ignore
 
-class Watcher:
-    """classe che osserva il contenuto di una cartella per cambiamenti"""
-    directory_to_watch = ''
-
-    def __init__(self, directory_to_watch):
-        self.directory_to_watch = directory_to_watch
-        self.observer = Observer()
-
-    def run(self, handler):
-        """esegue il codice di osservazione della cartella"""
-        event_handler = handler
-        self.observer.schedule(event_handler, self.directory_to_watch, recursive=True)
-        self.observer.start()
-        try:
-            while True:
-                time.sleep(5)
-        except Exception as exc: #pylint: disable=W0703
-            self.observer.stop()
-            logger.trace(exc)
-
-        self.observer.join()
 
 class Playlist():
     """Classe che descrive una playlist di elementi."""
@@ -256,32 +232,10 @@ class Playlist():
         sys.exit(errorcode)
 
 
-class PlaylistPlayer(Playlist, FileSystemEventHandler):
+class PlaylistPlayer(Playlist):
     """Playlist che tiene traccia dell'elemento visualizzato."""
 
     idx: int = -1
-
-    def __init__(self, playlist_path: Optional[str] = None, on_error: Callable = None):
-        super().__init__(playlist_path, on_error)
-        self.watcher = Watcher(self.playlist_path)
-        self.watcher.run(self)
-
-    def on_any_event(self, event):
-        """handler di eventi
-
-        Args:
-            event (_type_): evento da analizzare
-        """
-        if event.is_directory:
-            logger.debug(f"Received directory event - {event.src_path}.")
-
-        elif event.event_type == 'created':
-            logger.debug(f"Received created event - {event.src_path}.")
-            self.load()
-
-        elif event.event_type == 'modified':
-            logger.debug(f"Received modified event - {event.src_path}.")
-            self.load()
 
     def reload(self, playlist_path=None) -> bool:
         """ricarica la playlist"""
