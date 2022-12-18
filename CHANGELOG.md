@@ -1,3 +1,9 @@
+## 0.2.2 (2022-12-18)
+
+### Fix
+
+- fixed a recursion error when path is given but can be None
+
 ## 0.2.1 (2022-12-18)
 
 ### Refactor
