@@ -69,7 +69,7 @@ class PlaylistElement:
     def serialize(self) -> Union[str, dict[str, str]]:
         """restituisce un oggetto serializzabile."""
         if self.durata is not None:
-            return {"name": self.path.name, "durata": str(self.durata)}
+            return {"name": str(self.path.name), "durata": str(self.durata)}
         return self.path.name
 
     @staticmethod
@@ -138,7 +138,7 @@ class Playlist:
     def save(self):
         """salva la playlist nella cartella indicata in [[playlist_path]]."""
         with open(self.playlist_path / "playlist.yaml", "w", encoding="utf-8") as outfile:
-            yaml.dump(map(lambda x: x.serialize(), self.data),
+            yaml.dump(list(map(lambda x: x.serialize(), self.data)),
                       outfile, default_flow_style=False)
 
     def reload(self, playlist_path=None):
