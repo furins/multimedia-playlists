@@ -1,4 +1,4 @@
-.PHONY: install_dev, setup_dev, bump
+.PHONY: install_dev, setup_dev, bump, tests
 
 install_dev:
 	python -m pip install -U -r ./requirements.txt
@@ -9,4 +9,8 @@ setup_dev:
 	cz init
 
 bump:
-	cz bump --changelog
+	cz bump --check-consistency --changelog
+
+tests:
+	python3 -m pip uninstall -y playlists
+	python -m pytest
