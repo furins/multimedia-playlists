@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "playlists"
-version = "0.0.2"
+version = "0.1.0"
 authors = [
   { name="Stefano Furin", email="furins@gmail.com" },
 ]
@@ -20,10 +20,17 @@ dependencies = [
   'PyYAML ~= 6.0',
   'loguru',
  ]
+
 [project.urls]
 "Homepage" = "https://github.com/furins/multimedia-playlists"
 "Bug Tracker" = "https://github.com/furins/multimedia-playlists/issues"
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 version = "0.1.0"
 tag_format = "$version"
+version_files = [
+    "pyproject.toml:^version",
+    # "cargo.toml:^version",
+    # "package.json:\"version\":"
+]
